@@ -1,0 +1,41 @@
+#!/usr/bin/env ruby
+
+$: << File.expand_path(File.join(__FILE__, '..', '..', 'lib'))
+require 'optparse'
+require 'logger'
+require 'twitter_utility'
+
+OPTIONS = {}
+OptionParser.new do |opt|
+  opt.on('-s self_account_name',   '--self_account_name',   String)  {|v| OPTIONS[:self_account_name]   = v}
+  opt.on('-t target_account_name', '--target_account_name', String)  {|v| OPTIONS[:target_account_name] = v}
+  opt.on('-n number_of_accounts',  '--number_of_accounts',  Integer) {|v| OPTIONS[:number_of_accounts]  = v}
+  opt.on('-l logfile',             '--logfile',             String)  {|v| OPTIONS[:logfile]             = v}
+  opt.on('-e',                     '--execute')                      {|v| OPTIONS[:execute]             = v}
+  opt.parse!(ARGV)
+end
+raise OptionParser::MissingArgument unless OPTIONS[:self_account_name]
+raise OptionParser::MissingArgument unless OPTIONS[:target_account_name]
+raise OptionParser::MissingArgument unless OPTIONS[:number_of_accounts]
+
+logger = Logger.new(OPTIONS[:logfile] || STDOUT)
+logger.level = OPTIONS[:execute] ? Logger::INFO : Logger::DEBUG
+logger.info("start. self_account_name: #{OPTIONS[:self_account_name]}, target_account_name: #{OPTIONS[:target_account_name]}, number_of_accounts: #{OPTIONS[:number_of_accounts]}")
+
+self_account = TwitterUtility::Account.new(OPTIONS[:self_account_name])
+follow_candidate_account_ids = self_account.api_client.follower_ids(OPTIONS[:target_account_name]).to_a - self_account.api_client.friend_ids.to_a
+follow_target_account_ids = follow_candidate_account_ids.shuffle[0..OPTIONS[:number_of_accounts] - 1]
+
+follow_target_account_ids.each do |follow_target_account_id|
+  if OPTIONS[:execute]
+    begin
+      logger.info("follow: #{follow_target_account_id}")
+      self_account.api_client.follow(follow_target_account_id)
+    rescue => exception
+      log.error("fail to follow: #{follow_target_account_id}, #{exception.message} (#{exception.class})")
+    end
+  else
+    logger.debug("follow: #{follow_target_account_id}")
+  end
+end
+logger.info('finish.')
