@@ -26,8 +26,12 @@ unfollow_target_account_ids = not_follow_back_account_ids.shuffle[0..OPTIONS[:nu
 
 unfollow_target_account_ids.each do |unfollow_target_account_id|
   if OPTIONS[:execute]
-    logger.info("unfollow: #{unfollow_target_account_id}")
-    self_account.api_client.unfollow(unfollow_target_account_id)
+    begin
+      logger.info("unfollow: #{unfollow_target_account_id}")
+      self_account.api_client.unfollow(unfollow_target_account_id)
+    rescue => exception
+      log.error("fail to unfollow: #{unfollow_target_account_id}, #{exception.message} (#{exception.class})")
+    end
   else
     logger.debug("unfollow: #{unfollow_target_account_id}")
   end

@@ -28,8 +28,12 @@ follow_target_account_ids = follow_candidate_account_ids.shuffle[0..OPTIONS[:num
 
 follow_target_account_ids.each do |follow_target_account_id|
   if OPTIONS[:execute]
-    logger.info("follow: #{follow_target_account_id}")
-    self_account.api_client.follow(follow_target_account_id)
+    begin
+      logger.info("follow: #{follow_target_account_id}")
+      self_account.api_client.follow(follow_target_account_id)
+    rescue => exception
+      log.error("fail to follow: #{follow_target_account_id}, #{exception.message} (#{exception.class})")
+    end
   else
     logger.debug("follow: #{follow_target_account_id}")
   end
