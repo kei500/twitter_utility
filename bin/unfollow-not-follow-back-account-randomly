@@ -30,7 +30,7 @@ unfollow_target_account_ids.each do |unfollow_target_account_id|
       logger.info("unfollow: #{unfollow_target_account_id}")
       self_account.api_client.unfollow(unfollow_target_account_id)
     rescue => exception
-      log.error("fail to unfollow: #{unfollow_target_account_id}, #{exception.message} (#{exception.class})")
+      logger.error("fail to unfollow: #{unfollow_target_account_id}, #{exception.message} (#{exception.class})")
     end
   else
     logger.debug("unfollow: #{unfollow_target_account_id}")

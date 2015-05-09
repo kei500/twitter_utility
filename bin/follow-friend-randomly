@@ -32,7 +32,7 @@ follow_target_account_ids.each do |follow_target_account_id|
       logger.info("follow: #{follow_target_account_id}")
       self_account.api_client.follow(follow_target_account_id)
     rescue => exception
-      log.error("fail to follow: #{follow_target_account_id}, #{exception.message} (#{exception.class})")
+      logger.error("fail to follow: #{follow_target_account_id}, #{exception.message} (#{exception.class})")
     end
   else
     logger.debug("follow: #{follow_target_account_id}")
